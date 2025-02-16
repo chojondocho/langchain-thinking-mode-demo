@@ -81,19 +81,26 @@
 
     # API 키 불러오기 위한 작업
     from dotenv import dotenv_values
-    from langchain_google_genai import ChatGoogleGenerativeAI  # 수정된 부분
+
+    env = dotenv_values()
+
+    # LLM 모델 셋업
+    from langchain.chat_models import init_chat_model
+
+    model = init_chat_model(
+        model="gemini-2.0-flash",
+        model_provider="google_genai",
+        api_key=env["GOOGLE_API_KEY"],
+    )
+
+
+    # 시간 측정 위한 작업
     from time import time, sleep
     import sys
     from threading import Thread, Event
 
-    env = dotenv_values()
-
-    # LLM 모델 셋업 (Gemini-2.0-flash 모델이 존재하지 않으므로, gemini-1.5-pro-002 로 대체)
-    model = ChatGoogleGenerativeAI(model="gemini-1.5-pro-002", google_api_key=env["GOOGLE_API_KEY"], convert_system_message_to_human=True)
-
-
-    # 시간 측정 위한 작업
     stop_time = Event()
+
 
     def show_time():
         start = time()
@@ -102,7 +109,8 @@
             sys.stdout.flush()
             sleep(0.1)
 
-    # 번역 프롬프트 함수
+
+    # 번역 프롬프트
     def prompt_translate(prompt, target_language):
         return f"""
         Accurately translate the following text into natural {target_language}.
@@ -112,25 +120,26 @@
         Output only the perfectly translated text.
         """
 
-    # 모델 언어(예: 영어)
+
+    # 모델 언어
     llm_language = "American English"
-    # 사용자 언어(예: 한국어)
+    # 사용자 언어
     user_language = "Korean"
 
-    # 사용자 입력 받기
+    # 사용자 입력
     request = input("User: ")
 
-    # 시간 표시 스레드 시작
+    # 시간 측정 스레드 시작
     Thread(target=show_time, daemon=True).start()
 
-    # 1) 번역 페이즈: 사용자 요청을 영어로 번역
+    # 1. 번역 페이즈
     response = model.invoke(prompt_translate(request, llm_language)).content
     print(f'\nHmm.. The user said, "{response}"')
 
-    # 2) 최초 응답 페이즈
-    response = model.invoke(response).content # 번역된 결과를 사용
+    # 2. 최초 응답 페이즈
+    response = model.invoke(request).content
 
-    # 3) 개선 페이즈 (5번 반복 예시)
+    # 3. 개선 페이즈
     for i in range(5):
         response = model.invoke(
             f"""
@@ -149,13 +158,14 @@
             """
         ).content
 
-    # 4) 사용자 언어로 재번역 페이즈
+    # 4. 사용자 언어 응답 페이즈
     print(f"\nRespond in the user's native language. '{user_language}'")
     response = model.invoke(prompt_translate(response, user_language)).content
-    stop_time.set()  # 시간 표시 스레드 종료
+    stop_time.set()
 
-    # 5) 최종 응답 출력
+    # 5. 최종 응답 페이즈
     print(f"\nAI: {response}")
+
 
     ```
 
