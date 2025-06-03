@@ -199,8 +199,8 @@
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details (optional: 라이선스 파일을 추가할 경우).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. (optional: 기여 관련 내용을 추가할 경우)
+Contributions are welcome! Please feel free to submit a Pull Request.
