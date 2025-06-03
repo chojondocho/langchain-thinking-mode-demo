@@ -51,12 +51,15 @@ request = input("User: ")
 # 시간 측정 스레드 시작
 Thread(target=show_time, daemon=True).start()
 
-# 1. 번역 페이즈
-response = model.invoke(prompt_translate(request, llm_language)).content
-print(f'\nHmm.. The user said, "{response}"')
 
-# 2. 최초 응답 페이즈
-response = model.invoke(request).content
+# 1. 번역 페이즈
+translated_request = model.invoke(
+    prompt_translate(request, llm_language)
+).content
+print(f"\nHmm.. The user said, \"{translated_request}\"")
+
+# 2. 최초 응답 페이즈 (번역된 요청 사용)
+response = model.invoke(translated_request).content
 
 # 3. 개선 페이즈
 for i in range(5):
@@ -64,7 +67,7 @@ for i in range(5):
         f"""
         request:
         ```
-        {request}
+        {translated_request}
         ```
         response:
         ```
