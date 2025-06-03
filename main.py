@@ -1,7 +1,13 @@
 # API 키 불러오기 위한 작업
 from dotenv import dotenv_values
+import os
 
 env = dotenv_values()
+api_key = env.get("GOOGLE_API_KEY") or os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    raise ValueError(
+        "Google API key is missing. Set GOOGLE_API_KEY in your environment or .env file."
+    )
 
 # LLM 모델 셋업
 from langchain.chat_models import init_chat_model
@@ -9,7 +15,7 @@ from langchain.chat_models import init_chat_model
 model = init_chat_model(
     model="gemini-2.0-flash",
     model_provider="google_genai",
-    api_key=env["GOOGLE_API_KEY"],
+    api_key=api_key,
 )
 
 
